@@ -2,7 +2,7 @@
 This is a text-based ethical decision-making game designed to train humanitarian workers in navigating complex moral dilemmas under high-pressure situations. Built using Flask (Python) for the backend and Vanilla JavaScript for the frontend, the game dynamically loads scenarios from a JSON configuration file, allowing for customizable and adaptable training experiences.
 
 Features
--   Interactive text-based gameplay with branching narratives
+-   Interactive text-based gameplay with immersive and educational narratives
 -   Ethical decision-making challenges based on real-world humanitarian dilemmas
 -   Backend powered by Flask, handling scenario logic and API interactions
 -   Frontend built with HTML, CSS, and JavaScript for a simple yet effective user interface
