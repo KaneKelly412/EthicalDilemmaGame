@@ -55,9 +55,7 @@ def get_dilemma_choices(index):
     # Iterate over the choices, which are now a dictionary, not a list
     choices = [{"id": int(choice_id), "text": choice["text"]} for choice_id, choice in dilemma["CHOICES"].items()]
 
-    # Assuming "QUESTIONS" is still a list
-    #questions = [{"id": i+1, "question": question["QUESTION"]} for i, question in enumerate(dilemma["QUESTIONS"])]
-
+    
     return jsonify({
         "choices": choices
     })
