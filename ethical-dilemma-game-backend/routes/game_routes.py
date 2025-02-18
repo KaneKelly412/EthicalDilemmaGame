@@ -10,7 +10,7 @@ scenarios = helpers.load_json("config.json")
 
 # Initialize game state
 game_state = {
-    #"current_scenario": scenarios["start"],
+    "current_dilemma": 0,
     "history": []
 }
 
@@ -23,14 +23,13 @@ def get_scenario():
     })
 
 
-# API endpoint to reset the game
-"""
+# API to reset game
 @game_bp.route("/reset", methods=["POST"])
 def reset_game():
-    game_state["current_scenario"] = scenarios["start"]
+    game_state["current_dilemma"] = 0
     game_state["history"] = []
-    return jsonify({"message": "Game reset successful", "scenario": game_state["current_scenario"]})
-"""
+    return jsonify({"message": "Game reset successful"})
+
 
 
 # API endpoint to get current dilemma
@@ -52,13 +51,70 @@ def get_dilemma_choices(index):
     
     dilemma = scenarios["DILEMMAS"][index]
 
-    # Iterate over the choices, which are now a dictionary, not a list
     choices = [{"id": int(choice_id), "text": choice["text"]} for choice_id, choice in dilemma["CHOICES"].items()]
 
     
     return jsonify({
         "choices": choices
     })
+
+# API endpoint to get questions from a dilemma
+@game_bp.route("/dilemma/<int:index>/get_questions", methods=["GET"])
+def get_dilemma_questions(index):
+    if index < 0 or index >= len(scenarios["DILEMMAS"]):
+        return jsonify({"error": "Invalid dilemma index"}), 404
+    
+    dilemma = scenarios["DILEMMAS"][index]
+
+    questions =  [{"question": question["question"]} for question in dilemma["QUESTIONS"]]
+
+    return jsonify({
+        "questions": questions
+    })
+
+# API endpoint to get answer from a question
+@game_bp.route("/dilemma/<int:index>/question/<int:question_id>", methods=["GET"])
+def get_dilemma_answer(index, question_id):
+    if index < 0 or index >= len(scenarios["DILEMMAS"]):
+        return jsonify({"error": "Invalid dilemma index"}), 404
+
+    dilemma = scenarios["DILEMMAS"][index]
+
+    # Find the question with the matching ID
+    question = next((q for q in dilemma["QUESTIONS"] if q["id"] == question_id), None)
+
+    if not question:
+        return jsonify({"error": "Question not found"}), 404
+
+    return jsonify({
+        "question": question["question"],
+        "answer": question["answer"]
+    })
+
+
+# API endpoint to get the outcome of a specific choice
+@game_bp.route("/dilemma/<int:dilemma_id>/choice/<int:choice_id>/outcome", methods=["GET"])
+def get_choice_outcome(dilemma_id, choice_id):
+    if dilemma_id < 0 or dilemma_id >= len(scenarios["DILEMMAS"]):
+        return jsonify({"error": "Invalid dilemma index"}), 404
+
+    dilemma = scenarios["DILEMMAS"][dilemma_id]
+    choices = dilemma.get("CHOICES", {})
+
+    choice = choices.get(str(choice_id))
+    if not choice:
+        return jsonify({"error": "Invalid choice"}), 404
+
+    return jsonify({
+        "outcome": choice.get("outcome", "No outcome provided."),
+        "next_dilemma": choice.get("next_dilemma")
+    })
+
+
+
+
+
+
 
 
 

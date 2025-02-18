@@ -21,14 +21,17 @@
         },
         "QUESTIONS": [
           {
+            "id": 1,
             "question": "Why is equal food distribution important?",
             "answer": "Unequal distribution can lead to tension, conflict, and a breakdown of order in the camp."
           },
           {
+            "id": 2,
             "question": "What are the risks of denying the leader's request?",
             "answer": "He may feel slighted and become uncooperative, but fairness in aid distribution builds long-term trust."
           },
           {
+            "id": 3,
             "question": "What if the leader becomes hostile?",
             "answer": "You can report any threats to security staff and work with other camp leaders to maintain peace."
           }
@@ -53,14 +56,17 @@
         },
         "QUESTIONS": [
           {
+            "id": 4,
             "question": "What are the consequences of delaying medical help?",
             "answer": "The child's condition could deteriorate rapidly, leading to preventable suffering or death."
           },
           {
+            "id": 5,
             "question": "Are there alternative transport options?",
             "answer": "Exploring other means of transport or asking for external support could be a solution."
           },
           {
+            "id": 6,
             "question": "How can we balance medical and supply priorities?",
             "answer": "Assessing urgency and potential solutions for both needs can help create a balanced response."
           }
