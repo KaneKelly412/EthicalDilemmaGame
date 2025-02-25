@@ -1,0 +1,111 @@
+{
+    "STORY": "You are Daniel Reed, a truck driver working for an international humanitarian organization. Your mission is to deliver critical supplies—food, water, and medical aid—to a refugee camp deep inside a conflict zone. The roads are dangerous, resources are scarce, and every decision you make could mean life or death.",
+    "CHARACTER": "Humanitarian Truck Driver",
+    "DILEMMAS": [
+        {
+            "DILEMMA": "As you approach a checkpoint controlled by an armed militia, the guards demand a portion of your supplies in exchange for safe passage.",
+            "CHOICES": {
+                "1": {
+                    "text": "Refuse and insist that the supplies are for refugees only.",
+                    "outcome": "The guards grow hostile and refuse to let you pass. You are forced to turn back, delaying aid delivery.",
+                    "next_dilemma": 1
+                },
+                "2": {
+                    "text": "Give them a small portion of the supplies to ensure safe passage.",
+                    "outcome": "You are allowed through, but the militia now expects bribes in the future, making future deliveries riskier."
+                },
+                "3": {
+                    "text": "Try to negotiate, offering alternative supplies that won’t critically affect the camp.",
+                    "outcome": "After tense discussions, you convince them to accept non-essential items. The camp still receives most of the aid, and you avoid conflict."
+                }
+            },
+            "QUESTIONS": [
+                {
+                    "id": 1,
+                    "question": "What are the risks of negotiating with armed groups?",
+                    "answer": "Giving in to demands can set a dangerous precedent, but outright refusal may also put lives at risk."
+                },
+                {
+                    "id": 2,
+                    "question": "Why might the militia be demanding supplies?",
+                    "answer": "They could be struggling with their own shortages, or they may want to control resources as a show of power."
+                },
+                {
+                    "id": 3,
+                    "question": "What other strategies could ensure a safe passage?",
+                    "answer": "Contacting local NGOs, using alternative routes, or arranging for a security escort could be possible solutions."
+                }
+            ]
+        },
+        {
+            "DILEMMA": "Your truck breaks down in a remote area, and night is approaching. There is a nearby village, but approaching strangers could be risky.",
+            "CHOICES": {
+                "1": {
+                    "text": "Stay with the truck and wait for assistance from your organization.",
+                    "outcome": "You remain safe, but it may take hours or days for help to arrive, delaying the critical aid delivery.",
+                    "next_dilemma": 2
+                },
+                "2": {
+                    "text": "Approach the village cautiously and seek help.",
+                    "outcome": "The villagers are wary but offer assistance after you explain your mission. You get the truck repaired and continue the journey."
+                },
+                "3": {
+                    "text": "Attempt to repair the truck yourself, despite limited knowledge.",
+                    "outcome": "You waste valuable time and may cause further damage, making the situation worse."
+                }
+            },
+            "QUESTIONS": [
+                {
+                    "id": 1,
+                    "question": "What are the dangers of staying put?",
+                    "answer": "Stranded vehicles can be targeted by looters, and the aid delivery will be significantly delayed."
+                },
+                {
+                    "id": 2,
+                    "question": "How can you safely approach an unfamiliar village?",
+                    "answer": "Displaying signs of peace, explaining your purpose, and seeking local intermediaries can help."
+                },
+                {
+                    "id": 3,
+                    "question": "What basic mechanical skills should a humanitarian driver have?",
+                    "answer": "Knowing how to handle minor repairs like tire changes and fuel issues can be crucial in remote areas."
+                }
+            ]
+        },
+        {
+            "DILEMMA": "You finally reach the refugee camp, but another aid convoy has arrived late, and supplies are running dangerously low. The camp leader asks if you can stretch your shipment to cover more people than originally planned.",
+            "CHOICES": {
+                "1": {
+                    "text": "Stick to the original distribution plan to ensure fairness.",
+                    "outcome": "Some refugees are left without aid, leading to anger and desperation. Security concerns grow within the camp."
+                },
+                "2": {
+                    "text": "Recalculate rations and try to spread the supplies more thinly.",
+                    "outcome": "Everyone gets something, but portions are too small to last. More aid will be needed soon."
+                },
+                "3": {
+                    "text": "Prioritize the most vulnerable individuals first.",
+                    "outcome": "The most at-risk refugees receive aid, but others feel neglected, causing unrest.",
+                    "finish": "Despite the challenges, your mission is a success. By prioritizing those in greatest need, you uphold the humanitarian principles and help stabilize the situation in the camp. Your actions have made a difference."
+                }
+            },
+            "QUESTIONS": [
+                {
+                    "id": 1,
+                    "question": "What are the ethical considerations in rationing aid?",
+                    "answer": "Deciding who gets aid first can be a difficult moral dilemma, as fairness and survival must be balanced."
+                },
+                {
+                    "id": 2,
+                    "question": "How can you prevent future supply shortages?",
+                    "answer": "Better coordination with aid organizations and local groups can improve supply chain efficiency."
+                },
+                {
+                    "id": 3,
+                    "question": "What is the impact of unequal aid distribution?",
+                    "answer": "Favoritism or unfair distribution can lead to conflict and weaken trust in humanitarian operations."
+                }
+            ]
+        }
+    ]
+}

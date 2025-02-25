@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dilemma Game</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <h1>Dilemma Game</h1>
@@ -13,7 +13,9 @@
     <div id="game-info">
         <h2 id="story"></h2>
         <p id="character"></p>
+        <button id="start-restart-button"></button>
     </div>
+    
 
     <!-- Dilemma section -->
     <div id="dilemma-container" style="display: none;">
@@ -26,6 +28,14 @@
         <h3>Choices:</h3>
         <ul id="choices-list"></ul>
     </div>
+
+    <!-- Questions section -->
+    <div id="questions-container" style="display: none;">
+        <h3>Questions:</h3>
+        <ul id="questions-list"></ul>
+        <p id="question-answer" class="hidden"></p>
+    </div>
+
 
     <script src="script.js"></script>
 </body>

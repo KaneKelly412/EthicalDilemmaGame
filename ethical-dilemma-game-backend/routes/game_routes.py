@@ -14,6 +14,7 @@ game_state = {
     "history": []
 }
 
+
 # API endpoint to get the current scenario
 @game_bp.route("/get_scenario", methods=["GET"])
 def get_scenario():
@@ -26,10 +27,7 @@ def get_scenario():
 # API to reset game
 @game_bp.route("/reset", methods=["POST"])
 def reset_game():
-    game_state["current_dilemma"] = 0
-    game_state["history"] = []
     return jsonify({"message": "Game reset successful"})
-
 
 
 # API endpoint to get current dilemma
@@ -79,8 +77,6 @@ def get_dilemma_answer(index, question_id):
         return jsonify({"error": "Invalid dilemma index"}), 404
 
     dilemma = scenarios["DILEMMAS"][index]
-
-    # Find the question with the matching ID
     question = next((q for q in dilemma["QUESTIONS"] if q["id"] == question_id), None)
 
     if not question:
@@ -107,14 +103,6 @@ def get_choice_outcome(dilemma_id, choice_id):
 
     return jsonify({
         "outcome": choice.get("outcome", "No outcome provided."),
-        "next_dilemma": choice.get("next_dilemma")
+        "next_dilemma": choice.get("next_dilemma"),
+        "finish": choice.get("finish")
     })
-
-
-
-
-
-
-
-
-

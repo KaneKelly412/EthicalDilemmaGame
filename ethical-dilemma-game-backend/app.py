@@ -12,7 +12,7 @@ CORS(app)
 # Register blueprints
 app.register_blueprint(game_bp, url_prefix="/api/game")
 
-scenarios = helpers.load_json("config.json")
+#scenarios = helpers.load_json("config.json")
 
 # Run the Flask app
 if __name__ == "__main__":
