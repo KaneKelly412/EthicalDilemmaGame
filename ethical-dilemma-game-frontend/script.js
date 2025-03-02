@@ -1,11 +1,22 @@
 const BASE_API_URL = "http://127.0.0.1:5000/api/game";
 
 document.addEventListener("DOMContentLoaded", () => {
-    getScenario();
+    initializeGame();
 });
 
-// Display the scenario and start the game
-async function getScenario() {
+async function initializeGame() {
+    try {
+        await loadScenario(); // Load the initial scenario
+
+        document.getElementById("next-scenario-button").addEventListener("click", async function () {
+            await switchScenario();
+        });
+    } catch (error) {
+        console.error("Error initializing game:", error);
+    }
+}
+
+async function loadScenario() {
     try {
         const response = await fetch(`${BASE_API_URL}/get_scenario`);
         const data = await response.json();
@@ -13,97 +24,94 @@ async function getScenario() {
         document.getElementById("story").textContent = data.story;
         document.getElementById("character").textContent = `Character: ${data.character}`;
 
-        // Get the start button and set the initial functionality
-        const startButton = document.getElementById("start-restart-button");
-        startButton.textContent = "Start Game"; // Initialize button text
-        
-        // On button click, start the game
-        startButton.onclick = async function () {
-            startButton.style.display = "none"; // Hide the start button once clicked
-            document.getElementById("dilemma-container").style.display = "block"; 
+        document.getElementById("start-restart-button").textContent = "Start Game";
+        document.getElementById("start-restart-button").onclick = async function () {
+            document.getElementById("start-restart-button").style.display = "none";
+            document.getElementById("dilemma-container").style.display = "block";
             document.getElementById("choices-container").style.display = "block";
-            await loadDilemma(0); // Load the first dilemma
+            await loadDilemma(0);
         };
     } catch (error) {
         console.error("Error fetching scenario:", error);
     }
 }
 
-// Load and display questions
-async function getQuestions(index) {
+async function switchScenario() {
     try {
-        const response = await fetch(`${BASE_API_URL}/dilemma/${index}/get_questions`);
-        if (!response.ok) throw new Error(`Questions for dilemma ${index} not found`);
-        const data = await response.json();
-
-        const questionsList = document.getElementById("questions-list");
-        questionsList.innerHTML = ""; // Clear previous questions
-
-        data.questions.forEach((q, idx) => {
-            const li = document.createElement("li");
-            const button = document.createElement("button");
-            button.textContent = q.question;
-            button.classList.add("question-button");
-            button.onclick = () => getAnswer(index, idx + 1);
-            li.appendChild(button);
-            questionsList.appendChild(li);
-        });
-
-        document.getElementById("questions-container").style.display = "block";
+        await fetch(`${BASE_API_URL}/next_scenario`, { method: "POST" });
+        await loadScenario(); // Reload new scenario
     } catch (error) {
-        console.error("Error fetching questions:", error);
+        console.error("Error switching scenarios:", error);
     }
 }
 
-// Fetch and display the answer
-async function getAnswer(index, questionId) {
-    try {
-        const response = await fetch(`${BASE_API_URL}/dilemma/${index}/question/${questionId}`);
-        if (!response.ok) throw new Error(`Answer for question ${questionId} not found`);
-        const data = await response.json();
 
-        document.getElementById("question-answer").textContent = `Answer: ${data.answer}`;
-    } catch (error) {
-        console.error("Error fetching answer:", error);
-    }
-}
-
-// Modify loadDilemma to also load questions
 async function loadDilemma(index) {
     try {
         const response = await fetch(`${BASE_API_URL}/dilemma/${index}`);
         if (!response.ok) throw new Error(`Dilemma ${index} not found`);
-        const data = await response.json();
 
+        const data = await response.json();
         document.getElementById("dilemma").textContent = data.Dilemma;
 
-        getChoices(index);
-        getQuestions(index);
+        await loadChoices(index);
+        await loadQuestions(index);
     } catch (error) {
-        console.error("Error fetching dilemma:", error);
+        console.error("Error loading dilemma:", error);
     }
 }
 
-// Get the choices from a dilemma 
-async function getChoices(index) {
+async function loadChoices(index) {
     try {
         const response = await fetch(`${BASE_API_URL}/dilemma/${index}/get_choices`);
         if (!response.ok) throw new Error(`Choices for dilemma ${index} not found`);
-        const data = await response.json();
 
+        const data = await response.json();
         const choicesList = document.getElementById("choices-list");
         choicesList.innerHTML = "";
 
         data.choices.forEach(choice => {
-            const li = document.createElement("li");
             const button = document.createElement("button");
             button.textContent = choice.text;
             button.onclick = () => handleChoice(index, choice.id);
-            li.appendChild(button);
-            choicesList.appendChild(li);
+            choicesList.appendChild(button);
         });
     } catch (error) {
-        console.error("Error fetching choices:", error);
+        console.error("Error loading choices:", error);
+    }
+}
+
+async function loadQuestions(index) {
+    try {
+        const response = await fetch(`${BASE_API_URL}/dilemma/${index}/get_questions`);
+        if (!response.ok) throw new Error(`Questions for dilemma ${index} not found`);
+
+        const data = await response.json();
+        const questionsList = document.getElementById("questions-list");
+        questionsList.innerHTML = "";
+
+        data.questions.forEach((q, idx) => {
+            const button = document.createElement("button");
+            button.textContent = q.question;
+            button.onclick = () => loadAnswer(index, idx + 1);
+            questionsList.appendChild(button);
+        });
+
+        document.getElementById("questions-container").style.display = "block";
+    } catch (error) {
+        console.error("Error loading questions:", error);
+    }
+}
+
+async function loadAnswer(index, questionId) {
+    try {
+        const response = await fetch(`${BASE_API_URL}/dilemma/${index}/question/${questionId}`);
+        if (!response.ok) throw new Error(`Answer for question ${questionId} not found`);
+
+        const data = await response.json();
+        document.getElementById("question-answer").textContent = `Answer: ${data.answer}`;
+    } catch (error) {
+        console.error("Error loading answer:", error);
     }
 }
 
@@ -111,99 +119,65 @@ async function handleChoice(currentIndex, choiceId) {
     try {
         const response = await fetch(`${BASE_API_URL}/dilemma/${currentIndex}/choice/${choiceId}/outcome`);
         if (!response.ok) throw new Error(`Error fetching outcome for dilemma ${currentIndex}`);
-        
+
         const outcomeData = await response.json();
-
-        if (!outcomeData || !outcomeData.outcome) {
-            console.error("Outcome data not found.");
-            return;
-        }
-
-        // Display the outcome of the choice
         document.getElementById("dilemma").textContent = outcomeData.outcome;
         document.getElementById("choices-list").innerHTML = "";
-
-        // Hide questions section
         document.getElementById("questions-container").style.display = "none";
 
-        // Check whether the choice is correct or not
         if (outcomeData.next_dilemma != undefined) {
-            const continueButton = document.createElement("button");
-            continueButton.textContent = "Continue";
-            
-            // Load the next dilemma 
-            continueButton.onclick = () => loadDilemma(outcomeData.next_dilemma);
-            document.getElementById("choices-list").appendChild(continueButton);
+            createButton("Continue", () => loadDilemma(outcomeData.next_dilemma), "choices-list");
+        } else if (outcomeData.finish != undefined) {
+            displayEndMessage(outcomeData.finish);
+        } else {
+            createButton("Try Again", () => loadDilemma(currentIndex), "choices-list");
         }
-        
-        else if (outcomeData.finish != undefined) {
-            // Create and append finish message
-            const finishMessage = document.createElement("p");
-            finishMessage.innerHTML = `<strong></strong> ${outcomeData.finish}`;
-            finishMessage.style.color = "green";
-            finishMessage.style.fontWeight = "bold";
-            finishMessage.style.marginTop = "20px";
-            document.getElementById("dilemma-container").appendChild(finishMessage);  // Append to the dilemma container
-        
-            // Show a congratulations message
-            const congratsMessage = document.createElement("p");
-            congratsMessage.textContent = "🎉 Congratulations! You have completed the game.";
-            congratsMessage.style.fontSize = "18px";
-            congratsMessage.style.fontWeight = "bold";
-            congratsMessage.style.color = "#007BFF";
-            document.getElementById("dilemma-container").appendChild(congratsMessage);  // Append to the dilemma container
-        
-            // Create a restart button
-            const restartButton = document.createElement("button");
-            restartButton.textContent = "Restart Game";
-            restartButton.onclick = async function () {
-                await resetGame(); // Reset the game
-            };
-
-            document.getElementById("choices-list").appendChild(restartButton);
-            
-            
-            return; // Stop execution since the game is over
-        }
-        
-        
-        else {
-            // Incorrect choice or end of dilemmas, retry
-            const retryButton = document.createElement("button");
-            retryButton.textContent = "Try Again";
-
-            // Reload the current dilemma
-            retryButton.onclick = () => loadDilemma(currentIndex);
-            document.getElementById("choices-list").appendChild(retryButton);
-        }
-        
     } catch (error) {
         console.error("Error handling choice:", error);
     }
 }
 
-// Reset game logic
-// Reset game logic
+function createButton(text, onClick, parentId) {
+    const button = document.createElement("button");
+    button.textContent = text;
+    button.onclick = onClick;
+    const parentElement = document.getElementById(parentId);
+    parentElement.appendChild(button);
+}
+
+
+function displayEndMessage(message) {
+    const dilemmaContainer = document.getElementById("dilemma-container");
+    const finishMessage = document.createElement("p");
+    finishMessage.innerHTML = `<strong>${message}</strong>`;
+    finishMessage.style.color = "green";
+    finishMessage.style.fontWeight = "bold";
+    finishMessage.style.marginTop = "20px";
+    dilemmaContainer.appendChild(finishMessage);
+
+    const congratsMessage = document.createElement("p");
+    congratsMessage.textContent = "🎉 Congratulations! You have completed the game.";
+    congratsMessage.style.fontSize = "18px";
+    congratsMessage.style.fontWeight = "bold";
+    congratsMessage.style.color = "#007BFF";
+    dilemmaContainer.appendChild(congratsMessage);
+
+    createButton("Restart Game", resetGame, "choices-list");
+}
+
 async function resetGame() {
+    document.getElementById("story").textContent = "";
+    document.getElementById("character").textContent = "";
+    document.getElementById("dilemma").textContent = "";
+    document.getElementById("choices-list").innerHTML = "";
+    document.getElementById("questions-list").innerHTML = "";
+    document.getElementById("question-answer").textContent = "";
 
+    document.querySelectorAll("#dilemma-container p, #dilemma-container strong").forEach(el => el.remove());
 
-        // Reset all UI elements to their initial state
-        document.getElementById("story").textContent = "";
-        document.getElementById("character").textContent = "";
-        document.getElementById("dilemma").textContent = "";
-        document.getElementById("choices-list").innerHTML = "";
-        document.getElementById("questions-list").innerHTML = "";
-        document.getElementById("question-answer").textContent = "";
+    document.getElementById("dilemma-container").style.display = "none";
+    document.getElementById("choices-container").style.display = "none";
+    document.getElementById("questions-container").style.display = "none";
 
-        // Remove any finish messages or congrats message if they exist
-        const finishMessages = document.querySelectorAll("#dilemma-container p, #dilemma-container strong");
-        finishMessages.forEach(message => message.remove());
-
-        // Ensure all sections are hidden
-        document.getElementById("dilemma-container").style.display = "none";
-        document.getElementById("choices-container").style.display = "none";
-        document.getElementById("questions-container").style.display = "none";
-
-        
-        await getScenario();
+    await loadScenario(document.getElementById("scenario-selector").value);
 }
