@@ -26,6 +26,8 @@ scenarios = load_current_scenario()
 # API endpoint to get the current scenario details
 @game_bp.route("/get_scenario", methods=["GET"])
 def get_scenario():
+    global scenarios
+    scenarios = load_current_scenario()
     return jsonify({
         "story": scenarios["STORY"],
         "character": scenarios["CHARACTER"]
@@ -37,15 +39,19 @@ def get_scenario():
 def next_scenario():
     if not scenario_files:
         return jsonify({"error": "No scenarios available"}), 404
-    
+
     game_state["current_scenario_index"] = (game_state["current_scenario_index"] + 1) % len(scenario_files)
     game_state["current_dilemma"] = 0
     game_state["history"] = []
 
     global scenarios
-    scenarios = load_current_scenario()
+    scenarios = load_current_scenario()  # Ensure fresh scenario is loaded
 
-    return jsonify({"message": f"Switched to {scenario_files[game_state['current_scenario_index']]}"})
+    return jsonify({
+        "message": f"Switched to {scenario_files[game_state['current_scenario_index']]}",
+        "story": scenarios["STORY"],
+        "character": scenarios["CHARACTER"]
+    })
 
 
 # API to reset the game (optionally with a new scenario)
@@ -53,12 +59,20 @@ def next_scenario():
 def reset_game():
     game_state["current_dilemma"] = 0
     game_state["history"] = []
+
+    global scenarios
+    scenarios = load_current_scenario()  # Reload the scenario file
+
     return jsonify({"message": "Game reset successful"})
+
 
 
 # API endpoint to get current dilemma
 @game_bp.route("/dilemma/<int:index>", methods=["GET"])
 def get_dilemma(index):
+    global scenarios
+    scenarios = load_current_scenario()  # Reload the scenario file
+
     if index < 0 or index >= len(scenarios["DILEMMAS"]):
         return jsonify({"error": "Invalid dilemma index"}), 404
     
