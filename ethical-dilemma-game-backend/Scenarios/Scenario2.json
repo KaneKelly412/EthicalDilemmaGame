@@ -12,11 +12,13 @@
                 },
                 "2": {
                     "text": "Give them a small portion of the supplies to ensure safe passage.",
-                    "outcome": "You are allowed through, but the militia now expects bribes in the future, making future deliveries riskier."
+                    "outcome": "You are allowed through, but the militia now expects bribes in the future, making future deliveries riskier.",
+                    "type": "wrong"
                 },
                 "3": {
                     "text": "Try to negotiate, offering alternative supplies that won’t critically affect the camp.",
-                    "outcome": "After tense discussions, you convince them to accept non-essential items. The camp still receives most of the aid, and you avoid conflict."
+                    "outcome": "After tense discussions, you convince them to accept non-essential items. The camp still receives most of the aid, and you avoid conflict.",
+                    "type": "lose"
                 }
             },
             "QUESTIONS": [

@@ -111,3 +111,10 @@ li {
 #question-answer:not(:empty) {
     display: block; /* Show when it has content */
 }
+
+#lives {
+    font-size: 18px;
+    font-weight: bold;
+    color: red;
+    margin-bottom: 10px;
+}

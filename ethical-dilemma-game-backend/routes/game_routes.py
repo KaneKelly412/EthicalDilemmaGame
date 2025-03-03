@@ -129,5 +129,6 @@ def get_choice_outcome(dilemma_id, choice_id):
     return jsonify({
         "outcome": choice.get("outcome", "No outcome provided."),
         "next_dilemma": choice.get("next_dilemma"),
-        "finish": choice.get("finish")
+        "finish": choice.get("finish"),
+        "type": choice.get("type")
     })

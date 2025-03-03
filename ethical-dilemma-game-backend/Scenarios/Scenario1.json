@@ -12,11 +12,13 @@
           },
           "2": {
             "text": "Give the leader a small extra ration, hoping to maintain good relations.",
-            "outcome": "Word spreads that favoritism is at play. Other camp members begin demanding extra rations, causing unrest."
+            "outcome": "Word spreads that favoritism is at play. Other camp members begin demanding extra rations, causing unrest.",
+            "type": "lose"
           },
           "3": {
             "text": "Agree to his request and provide additional food.",
-            "outcome": "Camp members see the unfairness and protests break out. Your credibility as an aid worker is severely damaged."
+            "outcome": "Camp members see the unfairness and protests break out. Your credibility as an aid worker is severely damaged.",
+            "type": "wrong"
           }
         },
         "QUESTIONS": [
@@ -47,11 +49,13 @@
           },
           "2": {
             "text": "Stick to the original plan and prioritize the supply delivery.",
-            "outcome": "The child's condition worsens, and frustration grows among the refugees. Trust in humanitarian operations declines."
+            "outcome": "The child's condition worsens, and frustration grows among the refugees. Trust in humanitarian operations declines.",
+            "type": "wrong"
           },
           "3": {
             "text": "Ignore the issue, hoping another organization will handle it.",
-            "outcome": "The child does not get help in time, and the situation escalates into anger and protest. Your organization faces severe criticism."
+            "outcome": "The child does not get help in time, and the situation escalates into anger and protest. Your organization faces severe criticism.",
+            "type": "lose"
           }
         },
         "QUESTIONS": [

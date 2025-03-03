@@ -1,4 +1,5 @@
 const BASE_API_URL = "http://127.0.0.1:5000/api/game";
+let lives = 3;
 
 document.addEventListener("DOMContentLoaded", () => {
     initializeGame();
@@ -12,6 +13,8 @@ async function initializeGame() {
         document.getElementById("next-scenario-button").addEventListener("click", async function () {
             await switchScenario();
         });
+
+        updateLivesDisplay();
     } catch (error) {
         console.error("Error initializing game:", error);
     }
@@ -136,10 +139,25 @@ async function handleChoice(currentIndex, choiceId) {
 
         if (outcomeData.next_dilemma != undefined) {
             createButton("Continue", () => loadDilemma(outcomeData.next_dilemma), "choices-list");
-        } else if (outcomeData.finish != undefined) {
+        } 
+        else if (outcomeData.finish != undefined) {
             displayEndMessage(outcomeData.finish);
-        } else {
-            createButton("Try Again", () => loadDilemma(currentIndex), "choices-list");
+        } 
+        else if (outcomeData.type == "wrong"){
+            lives -= 1;
+            updateLivesDisplay();
+
+            if (lives > 0) {
+                createButton("Try Again", () => loadDilemma(currentIndex), "choices-list");    
+            }
+            else {
+                displayFailureMessage("You have lost all lives. Game Over!");
+            }
+        }
+        else if (outcomeData.type == "lose") {
+            lives = 0;
+            updateLivesDisplay();
+            displayFailureMessage("You have failed the scenario. Restarting...");
         }
     } catch (error) {
         console.error("Error handling choice:", error);
@@ -154,6 +172,10 @@ function createButton(text, onClick, parentId) {
     parentElement.appendChild(button);
 }
 
+function updateLivesDisplay() {
+    const livesElement = document.getElementById("lives");
+    livesElement.textContent = `❤️ Lives: ${lives}`;
+}
 
 function displayEndMessage(message) {
     const dilemmaContainer = document.getElementById("dilemma-container");
@@ -172,6 +194,17 @@ function displayEndMessage(message) {
     dilemmaContainer.appendChild(congratsMessage);
     document.getElementById("next-scenario-button").style.display = "block";
 
+    createButton("Restart Game", resetGame, "choices-list");
+}
+
+function displayFailureMessage(message) {
+    const dilemmaContainer = document.getElementById("dilemma-container");
+    const finishMessage = document.createElement("p");
+    finishMessage.innerHTML = `<strong>${message}</strong>`;
+    finishMessage.style.color = "red";
+    dilemmaContainer.appendChild(finishMessage);
+
+    document.getElementById("next-scenario-button").style.display = "block";
     createButton("Restart Game", resetGame, "choices-list");
 }
 
