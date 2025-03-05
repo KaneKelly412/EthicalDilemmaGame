@@ -8,8 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
 async function initializeGame() {
     try {
         await loadScenario(); // Load the initial scenario
-
-        createButton("Next Scenario", switchScenario(), "choices-list");
+        
         document.getElementById("next-scenario-button").style.display = "none";
         document.getElementById("next-scenario-button").addEventListener("click", async function () {
             await switchScenario();
@@ -47,6 +46,8 @@ async function switchScenario() {
     try {
         await fetch(`${BASE_API_URL}/next_scenario`, { method: "POST" });
         resetGame();
+        loadScenario();
+
         //await startGame(); // Reload new scenario
     } catch (error) {
         console.error("Error switching scenarios:", error);
@@ -226,10 +227,12 @@ async function startGame() {
     if (startButton) {
         startButton.style.display = "none";
     }
+    document.getElementById("next-scenario-button").style.display = "none";
     document.getElementById("dilemma-container").style.display = "block";
     document.getElementById("choices-container").style.display = "";
     document.getElementById("questions-container").style.display = "";
-    document.getElementById("next-scenario-button").style.display = "";
+    //document.getElementById("next-scenario-button").style.display = "";
+    let currentIndex = 0;
     loadDilemma(currentIndex);
 }
 
@@ -247,7 +250,7 @@ async function resetGame() {
 
         // Reset the visibility of sections
         document.getElementById("dilemma-container").style.display = "none";
-        //document.getElementById("choices-container").style.display = "none";
+        document.getElementById("choices-container").style.display = "none";
         document.getElementById("questions-container").style.display = "none";
         document.getElementById("next-scenario-button").style.display = "none";
 
