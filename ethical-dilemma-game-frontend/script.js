@@ -9,10 +9,16 @@ async function initializeGame() {
     try {
         await loadScenario(); // Load the initial scenario
 
+        createButton("Next Scenario", switchScenario(), "choices-list");
         document.getElementById("next-scenario-button").style.display = "none";
         document.getElementById("next-scenario-button").addEventListener("click", async function () {
             await switchScenario();
         });
+
+        const startButton = document.getElementById("start-button");
+        if (startButton) {
+            startButton.addEventListener("click", startGame);
+        }
 
         updateLivesDisplay();
     } catch (error) {
@@ -29,18 +35,7 @@ async function loadScenario() {
         document.getElementById("story").textContent = data.story;
         document.getElementById("character").textContent = `Character: ${data.character}`;
 
-        // Ensure the "Start Game" button is reset and visible
-        const startButton = document.getElementById("start-restart-button");
-        startButton.style.display = "block";  // Make sure it's visible
-        startButton.textContent = "Start Game";
-        startButton.onclick = async function () {
-            startButton.style.display = "none"; // Hide button after clicking
-            document.getElementById("dilemma-container").style.display = "block";
-            document.getElementById("choices-container").style.display = "block";
-            
-            // Ensure the first dilemma loads properly
-            await loadDilemma(0);
-        };
+        
 
     } catch (error) {
         console.error("Error fetching scenario:", error);
@@ -51,7 +46,8 @@ async function loadScenario() {
 async function switchScenario() {
     try {
         await fetch(`${BASE_API_URL}/next_scenario`, { method: "POST" });
-        await loadScenario(); // Reload new scenario
+        resetGame();
+        //await startGame(); // Reload new scenario
     } catch (error) {
         console.error("Error switching scenarios:", error);
     }
@@ -138,7 +134,7 @@ async function handleChoice(currentIndex, choiceId) {
         document.getElementById("questions-container").style.display = "none";
 
         if (outcomeData.next_dilemma != undefined) {
-            createButton("Continue", () => loadDilemma(outcomeData.next_dilemma), "choices-list");
+            const continueButton = createButton("Continue", () => loadDilemma(outcomeData.next_dilemma), "choices-list");
         } 
         else if (outcomeData.finish != undefined) {
             displayEndMessage(outcomeData.finish);
@@ -148,10 +144,13 @@ async function handleChoice(currentIndex, choiceId) {
             updateLivesDisplay();
 
             if (lives > 0) {
-                createButton("Try Again", () => loadDilemma(currentIndex), "choices-list");    
+                const tryAgainButton = createButton("Try Again", () => loadDilemma(currentIndex), "choices-list");    
             }
             else {
                 displayFailureMessage("You have lost all lives. Game Over!");
+                lives = 3;
+                
+                
             }
         }
         else if (outcomeData.type == "lose") {
@@ -170,6 +169,7 @@ function createButton(text, onClick, parentId) {
     button.onclick = onClick;
     const parentElement = document.getElementById(parentId);
     parentElement.appendChild(button);
+    return button;
 }
 
 function updateLivesDisplay() {
@@ -180,6 +180,7 @@ function updateLivesDisplay() {
 function displayEndMessage(message) {
     const dilemmaContainer = document.getElementById("dilemma-container");
     const finishMessage = document.createElement("p");
+    finishMessage.id = "finish-message";
     finishMessage.innerHTML = `<strong>${message}</strong>`;
     finishMessage.style.color = "green";
     finishMessage.style.fontWeight = "bold";
@@ -187,6 +188,7 @@ function displayEndMessage(message) {
     dilemmaContainer.appendChild(finishMessage);
 
     const congratsMessage = document.createElement("p");
+    congratsMessage.id = "congrats-message";
     congratsMessage.textContent = "🎉 Congratulations! You have completed the game.";
     congratsMessage.style.fontSize = "18px";
     congratsMessage.style.fontWeight = "bold";
@@ -194,53 +196,85 @@ function displayEndMessage(message) {
     dilemmaContainer.appendChild(congratsMessage);
     document.getElementById("next-scenario-button").style.display = "block";
 
-    createButton("Restart Game", resetGame, "choices-list");
+    const restartButton = createButton("Restart Game", resetGame, "choices-list");
 }
 
 function displayFailureMessage(message) {
     const dilemmaContainer = document.getElementById("dilemma-container");
-    const finishMessage = document.createElement("p");
-    finishMessage.innerHTML = `<strong>${message}</strong>`;
-    finishMessage.style.color = "red";
-    dilemmaContainer.appendChild(finishMessage);
+    const failureMessage = document.createElement("p");
+    failureMessage.id = "failure-message"
+    failureMessage.innerHTML = `<strong>${message}</strong>`;
+    failureMessage.style.color = "red";
+    dilemmaContainer.appendChild(failureMessage);
+
+
 
     document.getElementById("next-scenario-button").style.display = "block";
-    createButton("Restart Game", resetGame, "choices-list");
+
+    
+    const restartButton = createButton("Restart Game", resetGame, "choices-list");
+    restartButton.id = "restart-button";
+}
+
+async function startGame() {
+    updateLivesDisplay();
+    const restartButton = document.getElementById("restart-button");
+    if (restartButton) {
+        restartButton.style.display = "none";
+    }
+    const startButton = document.getElementById("start-button");
+    if (startButton) {
+        startButton.style.display = "none";
+    }
+    document.getElementById("dilemma-container").style.display = "block";
+    document.getElementById("choices-container").style.display = "";
+    document.getElementById("questions-container").style.display = "";
+    document.getElementById("next-scenario-button").style.display = "";
+    loadDilemma(currentIndex);
 }
 
 async function resetGame() {
     try {
-        await fetch(`${BASE_API_URL}/reset`, { method: "POST" });
+        
+        const finishMessage = document.getElementById("finish-message");
+        const congratsMessage = document.getElementById("congrats-message");
+        const failureMessage = document.getElementById("failure-message");
 
-        // Clear UI elements
-        document.getElementById("story").textContent = "";
-        document.getElementById("character").textContent = "";
-        document.getElementById("dilemma").textContent = "";  // Ensure it's cleared
-        document.getElementById("choices-list").innerHTML = "";
-        document.getElementById("questions-list").innerHTML = "";
-        document.getElementById("question-answer").textContent = "";
+        if (finishMessage) finishMessage.remove();
+        if (congratsMessage) congratsMessage.remove();
+        if (failureMessage) failureMessage.remove();
 
-        // Remove dynamically added messages
-        document.querySelectorAll("#dilemma-container p, #dilemma-container strong").forEach(el => el.remove());
 
         // Reset the visibility of sections
         document.getElementById("dilemma-container").style.display = "none";
-        document.getElementById("choices-container").style.display = "none";
+        //document.getElementById("choices-container").style.display = "none";
         document.getElementById("questions-container").style.display = "none";
         document.getElementById("next-scenario-button").style.display = "none";
 
-        // Make sure the start button is visible and centered
-        const startButton = document.getElementById("start-restart-button");
-        startButton.style.display = "block";
-        startButton.textContent = "Start Game";
+        // Remove dynamically added messages
+        //document.querySelectorAll("#dilemma-container p, #dilemma-container strong").forEach(el => el.remove());
 
+        currentIndex = 0;
+        // Ensure only one "Start Game" button exists
+        let startButton = document.getElementById("start-button");
+        if (!startButton) {
+            startButton = createButton("Start Game", () => startGame(), "choices-container");
+            startButton.id = "start-button";
+        } else {
+            startButton.style.display = "block"; // Ensure visibility
+        }
+        const restartButton = document.getElementById("restart-button");
+        if (restartButton) {
+            restartButton.style.display = "none";
+        }
+        lives = 3;
+        
         // Reload the scenario and ensure dilemma-container is ready
-        await initializeGame();
-        await loadScenario();
 
         // Ensure the dilemma container is visible before the next dilemma is loaded
-        document.getElementById("dilemma-container").style.display = "block";
-        document.getElementById("choices-container").style.display = "block";
+        //document.getElementById("dilemma-container").style.display = "block";
+        //document.getElementById("choices-container").style.display = "block";
+
     } catch (error) {
         console.error("Error restarting game:", error);
     }

@@ -89,12 +89,18 @@ li {
     background-color: #138496;
 }
 
-#start-restart-button {
+#start-button {
     display: block;
     margin: 20px auto;  /* Centers the button */
     text-align: center;
     padding: 10px 20px;
     font-size: 18px;
+}
+
+#next-scenario-button {
+    display: block;
+    margin: 20px auto; /* Centers the button horizontally */
+    text-align: center;
 }
 
 #question-answer {
