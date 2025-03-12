@@ -49,11 +49,13 @@
                 },
                 "2": {
                     "text": "Approach the village cautiously and seek help.",
-                    "outcome": "The villagers are wary but offer assistance after you explain your mission. You get the truck repaired and continue the journey."
+                    "outcome": "The villagers are wary but offer assistance after you explain your mission. You get the truck repaired and continue the journey.",
+                    "type": "wrong"
                 },
                 "3": {
                     "text": "Attempt to repair the truck yourself, despite limited knowledge.",
-                    "outcome": "You waste valuable time and may cause further damage, making the situation worse."
+                    "outcome": "You waste valuable time and may cause further damage, making the situation worse.",
+                    "type": "lose"
                 }
             },
             "QUESTIONS": [
@@ -79,11 +81,13 @@
             "CHOICES": {
                 "1": {
                     "text": "Stick to the original distribution plan to ensure fairness.",
-                    "outcome": "Some refugees are left without aid, leading to anger and desperation. Security concerns grow within the camp."
+                    "outcome": "Some refugees are left without aid, leading to anger and desperation. Security concerns grow within the camp.",
+                    "type": "lose"
                 },
                 "2": {
                     "text": "Recalculate rations and try to spread the supplies more thinly.",
-                    "outcome": "Everyone gets something, but portions are too small to last. More aid will be needed soon."
+                    "outcome": "Everyone gets something, but portions are too small to last. More aid will be needed soon.",
+                    "type": "wrong"
                 },
                 "3": {
                     "text": "Prioritize the most vulnerable individuals first.",
