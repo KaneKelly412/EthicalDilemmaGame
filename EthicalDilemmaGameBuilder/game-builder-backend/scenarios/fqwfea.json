@@ -1,0 +1,41 @@
+{
+    "STORY": "fawafwawfafwafw",
+    "CHARACTER": "fwaafwafw",
+    "DILEMMAS": [
+        {
+            "id": 0,
+            "DILEMMA": "fawawfawfafwfaw",
+            "CHOICES": {
+                "1": {
+                    "text": "fwaafwawfafw",
+                    "outcome": "afwawfwafawf",
+                    "next_dilemma": 1
+                },
+                "2": {
+                    "text": "fawawfawfawf",
+                    "outcome": "fawawfawfawf",
+                    "type": "wrong"
+                },
+                "3": {
+                    "text": "fawfvdxdvxvxd",
+                    "outcome": "vdxxvdvxdxdv",
+                    "type": "lose"
+                }
+            },
+            "QUESTIONS": []
+        },
+        {
+            "id": 1,
+            "DILEMMA": "vxddvxdvxdxvdxv",
+            "CHOICES": {
+                "1": {
+                    "text": "vdxvxddxv",
+                    "outcome": "vdxvdx",
+                    "next_dilemma": 2,
+                    "finish": "vxddxvvxdxdvvxd"
+                }
+            },
+            "QUESTIONS": []
+        }
+    ]
+}

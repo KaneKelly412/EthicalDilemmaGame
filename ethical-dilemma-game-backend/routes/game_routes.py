@@ -1,12 +1,27 @@
 from flask import Blueprint, jsonify, request
 import utils.helpers as helpers
 import os
+import sys
+import pkg_resources
 
 game_bp = Blueprint("game", __name__)
 
-# Load all scenario files from the Scenarios folder
-SCENARIOS_DIR = os.path.join(os.path.dirname(__file__), "..", "Scenarios")
-scenario_files = sorted([f for f in os.listdir(SCENARIOS_DIR) if f.startswith("Scenario") and f.endswith(".json")])
+# Determine the base path for the scenario directory
+if getattr(sys, 'frozen', False):
+    # If running as a bundled executable (in --onefile mode), use _MEIPASS to access extracted files
+    base_path = sys._MEIPASS  # This is the temporary folder where resources are extracted
+    SCENARIOS_DIR = os.path.join(base_path, 'Scenarios')
+else:
+    # If running in development, use the current working directory
+    SCENARIOS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'Scenarios')
+
+# Ensure the SCENARIOS_DIR exists
+if not os.path.exists(SCENARIOS_DIR):
+    print(f"Warning: 'Scenarios' directory not found at {SCENARIOS_DIR}")
+else:
+    # List all scenario files
+    scenario_files = sorted([f for f in os.listdir(SCENARIOS_DIR) if f.startswith("Scenario") and f.endswith(".json")])
+    print(f"Found scenario files: {scenario_files}")
 
 # Game state to track active scenario and progress
 game_state = {
@@ -16,7 +31,6 @@ game_state = {
 }
 
 def load_current_scenario():
-    """Load the scenario file based on the current index"""
     scenario_path = os.path.join(SCENARIOS_DIR, scenario_files[game_state["current_scenario_index"]])
     return helpers.load_json(scenario_path)
 

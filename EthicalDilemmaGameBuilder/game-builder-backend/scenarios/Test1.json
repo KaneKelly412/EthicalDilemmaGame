@@ -1,0 +1,35 @@
+{
+    "STORY": "Yadiadiaida",
+    "DILEMMAS": [
+        {
+            "id": 1,
+            "DILEMMA": "you are finished",
+            "CHOICES": {
+                "1": {
+                    "text": "woohooo",
+                    "outcome": "uh oh",
+                    "finish": "Game Over!"
+                },
+                "2": {
+                    "text": "bad bad bad",
+                    "outcome": "uh oh uhu ohj",
+                    "type": "wrong",
+                    "finish": "Game Over!"
+                },
+                "3": {
+                    "text": "yippeee kay yay",
+                    "outcome": "WRONG",
+                    "type": "lose",
+                    "finish": "Game Over!"
+                }
+            },
+            "QUESTIONS": [
+                {
+                    "id": 1,
+                    "question": "question if gang",
+                    "answer": "back"
+                }
+            ]
+        }
+    ]
+}
