@@ -1,4 +1,4 @@
-const BASE_API_URL = "http://127.0.0.1:5000";
+const BASE_API_URL = window.location.origin; 
 
 document.getElementById("addDilemma").addEventListener("click", function() {
     let dilemmasDiv = document.getElementById("dilemmas");
@@ -12,7 +12,7 @@ document.getElementById("addDilemma").addEventListener("click", function() {
     dilemmaInput.placeholder = "Enter dilemma text";
     dilemmaInput.className = "dilemma-text";
 
-    // 🟥 Delete dilemma button
+    // Delete dilemma button
     let deleteDilemmaBtn = document.createElement("button");
     deleteDilemmaBtn.textContent = "❌";
     deleteDilemmaBtn.className = "delete-btn";
@@ -35,7 +35,7 @@ document.getElementById("addDilemma").addEventListener("click", function() {
     let addQuestionBtn = document.createElement("button");
     addQuestionBtn.textContent = "Add Question";
 
-    // 🟢 Add choice button logic
+    // Add choice button logic
     addChoiceBtn.addEventListener("click", function() {
         let choiceDiv = document.createElement("div");
         choiceDiv.className = "choice";
@@ -63,7 +63,7 @@ document.getElementById("addDilemma").addEventListener("click", function() {
             if (finishInput.disabled) finishInput.value = "";
         });
 
-        // 🟥 Delete choice button
+        // Delete choice button
         let deleteChoiceBtn = document.createElement("button");
         deleteChoiceBtn.textContent = "❌";
         deleteChoiceBtn.className = "delete-btn";
@@ -81,7 +81,7 @@ document.getElementById("addDilemma").addEventListener("click", function() {
         choicesDiv.appendChild(choiceDiv);
     });
 
-    // 🟢 Add question button logic
+    // Add question button logic
     addQuestionBtn.addEventListener("click", function() {
         let questionDiv = document.createElement("div");
         questionDiv.className = "question";
@@ -92,7 +92,7 @@ document.getElementById("addDilemma").addEventListener("click", function() {
         let answerText = document.createElement("input");
         answerText.placeholder = "Enter answer text";
 
-        // 🟥 Delete question button
+        // Delete question button
         let deleteQuestionBtn = document.createElement("button");
         deleteQuestionBtn.textContent = "❌";
         deleteQuestionBtn.className = "delete-btn";
@@ -117,14 +117,14 @@ document.getElementById("addDilemma").addEventListener("click", function() {
     dilemmasDiv.appendChild(dilemmaDiv);
 });
 
-// 🟢 Function to update dilemma IDs after deletion
+// Function to update dilemma IDs after deletion
 function updateDilemmaIds() {
     document.querySelectorAll(".dilemma").forEach((dilemmaDiv, index) => {
         dilemmaDiv.dataset.id = index;
     });
 }
 
-// 🟢 Save game logic
+// Save game logic
 document.getElementById("saveGame").addEventListener("click", function() {
     let title = document.getElementById("title").value.trim();
     let description = document.getElementById("description").value.trim();

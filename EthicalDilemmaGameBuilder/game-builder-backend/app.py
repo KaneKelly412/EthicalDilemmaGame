@@ -1,11 +1,23 @@
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify, send_file, send_from_directory
 import json
 import os
+import sys
 import subprocess
 from flask_cors import CORS
+import webbrowser
+import socket
 
 
-app = Flask(__name__)
+
+
+if getattr(sys, 'frozen', False):
+    BASE_DIR = sys._MEIPASS
+    static_folder = os.path.join(BASE_DIR, "game-builder-frontend")
+else:
+    BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+    static_folder = os.path.abspath("../game-builder-frontend")
+
+app = Flask(__name__, static_folder=static_folder, static_url_path="/game-builder-frontend")
 app.config['SCENARIOS_FOLDER'] = 'scenarios'
 os.makedirs(app.config['SCENARIOS_FOLDER'], exist_ok=True)
 
@@ -51,5 +63,23 @@ print("Starting game:", game_data['STORY'])
     
     return send_file(exe_filename, as_attachment=True)
 
-if __name__ == '__main__':
-    app.run(debug=True)
+def get_free_port():
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind(('', 0))
+    _, port = s.getsockname()
+    s.close()
+    return port
+
+port = get_free_port()
+
+@app.route('/')
+def serve_index():
+    return send_from_directory(app.static_folder, "index.html")
+
+@app.route('/<path:path>')
+def serve_static_files(path):
+    return send_from_directory(app.static_folder, path)
+
+if __name__ == "__main__":
+    webbrowser.open(f"http://127.0.0.1:{port}/game-builder-frontend/index.html")  # Open the correct Flask URL
+    app.run(port=port)
