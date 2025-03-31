@@ -1,0 +1,18 @@
+{
+    "STORY": "Still just demoing the game",
+    "CHARACTER": "Kane Kelly",
+    "DILEMMAS": [
+        {
+            "id": 0,
+            "DILEMMA": "Does this work, enter your question",
+            "CHOICES": {
+                "1": {
+                    "text": "You enter the question and follow all the rules",
+                    "outcome": "nice! your choice is successful",
+                    "finish": "Great game"
+                }
+            },
+            "QUESTIONS": []
+        }
+    ]
+}

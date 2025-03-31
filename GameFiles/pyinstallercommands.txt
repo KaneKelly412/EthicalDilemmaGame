@@ -1,0 +1,4 @@
+pyinstaller --onefile \
+    --add-data "Scenarios:Scenarios" \
+    --add-data "../ethical-dilemma-game-frontend:ethical-dilemma-game-frontend" \
+    -n Game app.py
