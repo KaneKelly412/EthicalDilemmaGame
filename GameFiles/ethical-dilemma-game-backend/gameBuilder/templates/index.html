@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Builder</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 50px; }
+        button { padding: 10px 20px; margin: 10px; font-size: 16px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <h2>Game Builder</h2>
+    <button onclick="buildGame('windows')">Build for Windows</button>
+    <button onclick="buildGame('mac')">Build for Mac</button>
+    <pre id="output"></pre>
+
+    <script>
+        function buildGame(target) {
+            document.getElementById("output").innerText = "Building " + target + "...";
+
+            fetch('/build', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ target: target })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("output").innerText = data.status === "success"
+                    ? "Build successful!\n" + data.output
+                    : "Build failed!\n" + data.output;
+            })
+            .catch(error => {
+                document.getElementById("output").innerText = "Error: " + error;
+            });
+        }
+    </script>
+
+</body>
+</html>
