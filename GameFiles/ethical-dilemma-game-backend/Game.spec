@@ -5,7 +5,7 @@ a = Analysis(
     ['app.py'],
     pathex=[],
     binaries=[],
-    datas=[('Scenarios', 'Scenarios'), ('../ethical-dilemma-game-frontend', 'ethical-dilemma-game-frontend')],
+    datas=[('Scenarios', 'Scenarios'), ('../ethical-dilemma-game-frontend', 'ethical-dilemma-game-frontend'), ('routes', 'routes'), ('utils', 'utils')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
