@@ -133,6 +133,7 @@ async function loadAnswer(index, questionId) {
         if (!response.ok) throw new Error(`Answer for question ${questionId} not found`);
 
         const data = await response.json();
+        document.getElementById("question-answer").style.display = "block";
         document.getElementById("question-answer").textContent = `Answer: ${data.answer}`;
     } catch (error) {
         console.error("Error loading answer:", error);
@@ -148,6 +149,7 @@ async function handleChoice(currentIndex, choiceId) {
         document.getElementById("dilemma").textContent = outcomeData.outcome;
         document.getElementById("choices-list").innerHTML = "";
         document.getElementById("questions-container").style.display = "none";
+        document.getElementById("question-answer").style.display = "none";
 
         if (outcomeData.next_dilemma != undefined) {
             const continueButton = createButton("Continue", () => loadDilemma(outcomeData.next_dilemma), "choices-list");
