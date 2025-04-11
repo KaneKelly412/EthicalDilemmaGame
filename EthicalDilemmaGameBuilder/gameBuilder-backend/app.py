@@ -1,13 +1,13 @@
 import os
 import sys
-import shutil  # Ensure shutil is imported
+import shutil
 from flask import Flask, request, jsonify, send_file, send_from_directory
 from flask_cors import CORS
 import socket
 import webbrowser
 import subprocess
 
-# Get the base directory of the current script (gameBuilder-backend)
+# Get the base directory of the current script
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 # Define paths relative to gameBuilder-backend
@@ -54,25 +54,66 @@ def zip_game_files():
 
 
 # Route to build the game executable
+import platform
+
 @app.route("/build", methods=["POST"])
 def build_executable():
     if not os.path.exists(BACKEND_DIR):
         return jsonify({"error": f"Backend directory not found at {BACKEND_DIR}"}), 404
 
-    command = [
-        "pyinstaller", "--onefile",
-        "--add-data", "Scenarios:Scenarios",
-        "--add-data", "../ethical-dilemma-game-frontend:ethical-dilemma-game-frontend",
-        "--add-data", "routes:routes",
-        "--add-data", "utils:utils",
-        "-n", "Game", "app.py"
-    ]
+    current_os = platform.system()
+    is_windows = current_os == "Windows"
+
+    if is_windows:
+        # Windows Batch Script
+        build_cmd = [
+            "cmd.exe", "/c",
+            f"""
+            conda info --envs | findstr game-env >nul || (
+                echo Creating conda environment...
+                conda create -y -n game-env python=3.11
+            )
+            call conda activate game-env && (
+                pip install -r requirements.txt &&
+                pyinstaller --onefile ^
+                    --windowed ^
+                    --add-data "Scenarios;Scenarios" ^
+                    --add-data "../ethical-dilemma-game-frontend;ethical-dilemma-game-frontend" ^
+                    --add-data "routes;routes" ^
+                    --add-data "utils;utils" ^
+                    -n Game app.py
+            )
+            """
+        ]
+    else:
+        # macOS/Linux Bash Script
+        build_cmd = [
+            "bash", "-c",
+            f"""
+            source ~/.bashrc || source ~/.zshrc || true
+            conda info --envs | grep -q "^game-env-1" || (
+                echo "Creating conda environment..."
+                conda create -y -n game-env python=3.11
+            )
+            source $(conda info --base)/etc/profile.d/conda.sh
+            conda activate game-env &&
+            pip install -r requirements.txt &&
+            pyinstaller --onefile \\
+                --add-data "Scenarios:Scenarios" \\
+                --add-data "../ethical-dilemma-game-frontend:ethical-dilemma-game-frontend" \\
+                --add-data "routes:routes" \\
+                --add-data "utils:utils" \\
+                -n Game app.py
+            """
+        ]
 
     try:
-        subprocess.run(command, cwd=BACKEND_DIR, check=True)
-        return jsonify({"message": "Build successful!"})
-    except subprocess.CalledProcessError:
-        return jsonify({"error": "Build failed!"}), 500
+        subprocess.run(build_cmd, cwd=BACKEND_DIR, check=True)
+        return jsonify({"message": "Build completed successfully!"})
+    except subprocess.CalledProcessError as e:
+        print(f"Build failed: {e}")
+        return jsonify({"error": "Build failed during setup or packaging."}), 500
+
 
 # Serve the frontend index.html
 @app.route('/')

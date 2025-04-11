@@ -1,75 +1,79 @@
+// Base API endpoint for game-related requests
 const BASE_API_URL = `${window.location.origin}/api/game`;
+
+// Initial number of lives
 let lives = 3;
 
+// Wait until DOM is ready
 document.addEventListener("DOMContentLoaded", () => {
     initializeGame();
 
+    // Make the reflection textarea auto-expand based on content
     const reflectionText = document.getElementById("reflection-text");
-
     reflectionText.addEventListener("input", function () {
         this.style.height = "auto";
         this.style.height = (this.scrollHeight) + "px";
     });
 });
 
+// Initialize game setup and event listeners
 async function initializeGame() {
     try {
-        await loadScenario(); // Load the initial scenario
-        
+        await loadScenario(); // Load initial story and character
+
+        // Hide next scenario button by default and bind click handler
         document.getElementById("next-scenario-button").style.display = "none";
         document.getElementById("next-scenario-button").addEventListener("click", async function () {
             await switchScenario();
         });
 
+        // Start button event listener
         const startButton = document.getElementById("start-button");
         if (startButton) {
             startButton.addEventListener("click", startGame);
         }
 
+        // Show lives on screen
         updateLivesDisplay();
     } catch (error) {
         console.error("Error initializing game:", error);
     }
 }
 
+// Fetch and display the scenario (story and character)
 async function loadScenario() {
     try {
         const response = await fetch(`${BASE_API_URL}/get_scenario`);
         const data = await response.json();
 
-        // Set story and character
+        // Populate story and character elements
         document.getElementById("story").textContent = data.story;
-        document.getElementById("character").textContent = `Character: ${data.character}`;
-
-        
-
+        document.getElementById("character").textContent = `ROLE: ${data.character}`;
     } catch (error) {
         console.error("Error fetching scenario:", error);
     }
 }
 
-
+// Move to next scenario or show the finish screen if game is over
 async function switchScenario() {
     try {
         const response = await fetch(`${BASE_API_URL}/check_scenarios`, {method: "GET"});
         const data = await response.json();
 
         if (data.game_finished) {
-            showFinishScreen();
-        }
-
-        else {
+            showFinishScreen(); // Game over
+        } else {
             await fetch(`${BASE_API_URL}/next_scenario`, { method: "POST" });
 
-            resetGame();
-            loadScenario();
+            resetGame();   // Reset game UI
+            loadScenario(); // Load next scenario
         }
     } catch (error) {
         console.error("Error switching scenarios:", error);
     }
 }
 
-
+// Load dilemma and its choices/questions for the current index
 async function loadDilemma(index) {
     try {
         const response = await fetch(`${BASE_API_URL}/dilemma/${index}`);
@@ -85,6 +89,7 @@ async function loadDilemma(index) {
     }
 }
 
+// Load choices for the current dilemma and create buttons
 async function loadChoices(index) {
     try {
         const response = await fetch(`${BASE_API_URL}/dilemma/${index}/get_choices`);
@@ -92,7 +97,7 @@ async function loadChoices(index) {
 
         const data = await response.json();
         const choicesList = document.getElementById("choices-list");
-        choicesList.innerHTML = "";
+        choicesList.innerHTML = ""; // Clear old choices
 
         data.choices.forEach(choice => {
             const button = document.createElement("button");
@@ -105,6 +110,7 @@ async function loadChoices(index) {
     }
 }
 
+// Load clarifying questions for the dilemma
 async function loadQuestions(index) {
     try {
         const response = await fetch(`${BASE_API_URL}/dilemma/${index}/get_questions`);
@@ -112,7 +118,7 @@ async function loadQuestions(index) {
 
         const data = await response.json();
         const questionsList = document.getElementById("questions-list");
-        questionsList.innerHTML = "";
+        questionsList.innerHTML = ""; // Clear old questions
 
         data.questions.forEach((q, idx) => {
             const button = document.createElement("button");
@@ -127,6 +133,7 @@ async function loadQuestions(index) {
     }
 }
 
+// Load answer to a specific question
 async function loadAnswer(index, questionId) {
     try {
         const response = await fetch(`${BASE_API_URL}/dilemma/${index}/question/${questionId}`);
@@ -138,8 +145,9 @@ async function loadAnswer(index, questionId) {
     } catch (error) {
         console.error("Error loading answer:", error);
     }
-}
+} 
 
+// Handle the result of a selected choice
 async function handleChoice(currentIndex, choiceId) {
     try {
         const response = await fetch(`${BASE_API_URL}/dilemma/${currentIndex}/choice/${choiceId}/outcome`);
@@ -151,24 +159,27 @@ async function handleChoice(currentIndex, choiceId) {
         document.getElementById("questions-container").style.display = "none";
         document.getElementById("question-answer").style.display = "none";
 
+        // Navigate to next dilemma
         if (outcomeData.next_dilemma != undefined) {
             const continueButton = createButton("Continue", () => loadDilemma(outcomeData.next_dilemma), "choices-list");
         } 
+        // Show final message
         else if (outcomeData.finish != undefined) {
             displayEndMessage(outcomeData.finish);
         } 
+        // Incorrect choice logic
         else if (outcomeData.type == "wrong"){
             lives -= 1;
             updateLivesDisplay();
 
             if (lives > 0) {
                 const tryAgainButton = createButton("Try Again", () => loadDilemma(currentIndex), "choices-list");    
-            }
-            else {
+            } else {
                 displayFailureMessage("You have lost all lives. Game Over!");
                 lives = 3;                
             }
         }
+        // Immediate game over scenario
         else if (outcomeData.type == "lose") {
             lives = 0;
             updateLivesDisplay();
@@ -179,6 +190,7 @@ async function handleChoice(currentIndex, choiceId) {
     }
 }
 
+// Utility to create a button and attach to a parent
 function createButton(text, onClick, parentId) {
     const button = document.createElement("button");
     button.textContent = text;
@@ -188,13 +200,16 @@ function createButton(text, onClick, parentId) {
     return button;
 }
 
+// Update the UI display of lives
 function updateLivesDisplay() {
     const livesElement = document.getElementById("lives");
     livesElement.textContent = `❤️ Lives: ${lives}`;
 }
 
+// Display success message and restart option
 function displayEndMessage(message) {
     const dilemmaContainer = document.getElementById("dilemma-container");
+
     const finishMessage = document.createElement("p");
     finishMessage.id = "finish-message";
     finishMessage.innerHTML = `<strong>${message}</strong>`;
@@ -210,50 +225,52 @@ function displayEndMessage(message) {
     congratsMessage.style.fontWeight = "bold";
     congratsMessage.style.color = "#007BFF";
     dilemmaContainer.appendChild(congratsMessage);
-    document.getElementById("next-scenario-button").style.display = "block";
 
+    document.getElementById("next-scenario-button").style.display = "block";
     const restartButton = createButton("Restart Game", resetGame, "choices-list");
 }
 
+// Display failure message and restart button
 function displayFailureMessage(message) {
     const dilemmaContainer = document.getElementById("dilemma-container");
+
     const failureMessage = document.createElement("p");
     failureMessage.id = "failure-message"
     failureMessage.innerHTML = `<strong>${message}</strong>`;
     failureMessage.style.color = "red";
     dilemmaContainer.appendChild(failureMessage);
 
-
-
     document.getElementById("next-scenario-button").style.display = "block";
-
-    
     const restartButton = createButton("Restart Game", resetGame, "choices-list");
     restartButton.id = "restart-button";
 }
 
+// Begin the game from the first dilemma
 async function startGame() {
     updateLivesDisplay();
+
     const restartButton = document.getElementById("restart-button");
     if (restartButton) {
         restartButton.style.display = "none";
     }
+
     const startButton = document.getElementById("start-button");
     if (startButton) {
         startButton.style.display = "none";
     }
+
     document.getElementById("next-scenario-button").style.display = "none";
     document.getElementById("dilemma-container").style.display = "block";
     document.getElementById("choices-container").style.display = "";
     document.getElementById("questions-container").style.display = "";
-    //document.getElementById("next-scenario-button").style.display = "";
+
     let currentIndex = 0;
     loadDilemma(currentIndex);
 }
 
+// Reset game UI to its initial state
 async function resetGame() {
     try {
-        
         const finishMessage = document.getElementById("finish-message");
         const congratsMessage = document.getElementById("congrats-message");
         const failureMessage = document.getElementById("failure-message");
@@ -262,43 +279,37 @@ async function resetGame() {
         if (congratsMessage) congratsMessage.remove();
         if (failureMessage) failureMessage.remove();
 
-
-        // Reset the visibility of sections
+        // Hide gameplay containers
         document.getElementById("dilemma-container").style.display = "none";
         document.getElementById("choices-container").style.display = "none";
         document.getElementById("questions-container").style.display = "none";
         document.getElementById("next-scenario-button").style.display = "none";
 
-        // Remove dynamically added messages
-        //document.querySelectorAll("#dilemma-container p, #dilemma-container strong").forEach(el => el.remove());
-
         currentIndex = 0;
-        // Ensure only one "Start Game" button exists
+
+        // Ensure "Start Game" button is available
         let startButton = document.getElementById("start-button");
         if (!startButton) {
             startButton = createButton("Start Game", () => startGame(), "choices-container");
             startButton.id = "start-button";
         } else {
-            startButton.style.display = "block"; // Ensure visibility
+            startButton.style.display = "block";
         }
+
         const restartButton = document.getElementById("restart-button");
         if (restartButton) {
             restartButton.style.display = "none";
         }
+
         lives = 3;
-        
-        // Reload the scenario and ensure dilemma-container is ready
-
-        // Ensure the dilemma container is visible before the next dilemma is loaded
-        //document.getElementById("dilemma-container").style.display = "block";
-        //document.getElementById("choices-container").style.display = "block";
-
     } catch (error) {
         console.error("Error restarting game:", error);
     }
 }
 
+// Show the final screen with game summary and reflection
 async function showFinishScreen() {
+    // Hide all main game sections
     document.getElementById("lives").style.display = "none";
     document.getElementById("game-info").style.display = "none";
     document.getElementById("dilemma-container").style.display = "none";
@@ -308,9 +319,11 @@ async function showFinishScreen() {
 
     document.getElementById("finish-screen").style.display = "block";
 
+    // Get game stats from backend
     const response = await fetch(`${BASE_API_URL}/finish`);
     const data = await response.json();
 
+    // Show stats
     document.getElementById("stats").innerHTML = `
         <h2>Game Summary</h2>
         <p>Scenarios Completed: ${data.scenarios_completed}</p>
@@ -319,9 +332,11 @@ async function showFinishScreen() {
         <p>Failures: ${data.failures}<p>
     `;
 
+    // Allow player to download reflection
     document.getElementById("download-reflection-button").addEventListener("click", downloadReflection);
 }
 
+// Download reflection and stats as a text file
 function downloadReflection() {
     const reflectionText = document.getElementById("reflection-text").value;
     const statsText = document.getElementById("stats").innerText;
@@ -335,6 +350,3 @@ function downloadReflection() {
     a.click();
     document.body.removeChild(a);
 }
-
-
-

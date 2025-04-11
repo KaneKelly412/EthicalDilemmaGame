@@ -1,13 +1,17 @@
+// Base API URL derived from current site origin
 const BASE_API_URL = window.location.origin; 
 
+// Event listener for adding a new dilemma
 document.getElementById("addDilemma").addEventListener("click", function() {
     let dilemmasDiv = document.getElementById("dilemmas");
     let dilemmaIndex = dilemmasDiv.children.length; 
 
+    // Create main dilemma container
     let dilemmaDiv = document.createElement("div");
     dilemmaDiv.className = "dilemma";
     dilemmaDiv.dataset.id = dilemmaIndex; 
 
+    // Dilemma input field
     let dilemmaInput = document.createElement("input");
     dilemmaInput.placeholder = "Enter dilemma text";
     dilemmaInput.className = "dilemma-text";
@@ -19,33 +23,39 @@ document.getElementById("addDilemma").addEventListener("click", function() {
     deleteDilemmaBtn.addEventListener("click", function() {
         if (confirm("Are you sure you want to delete this dilemma?")) {
             dilemmaDiv.remove();
-            updateDilemmaIds();
+            updateDilemmaIds(); // Re-index remaining dilemmas
         }
     });
 
+    // Container for choices
     let choicesDiv = document.createElement("div");
     choicesDiv.className = "choices";
 
+    // Button to add a new choice
     let addChoiceBtn = document.createElement("button");
     addChoiceBtn.textContent = "Add Choice";
 
+    // Container for questions
     let questionsDiv = document.createElement("div");
     questionsDiv.className = "questions";
 
+    // Button to add a new clarifying question
     let addQuestionBtn = document.createElement("button");
     addQuestionBtn.textContent = "Add Clarifying Question";
 
-    // Add choice button logic
+    // Add new choice logic
     addChoiceBtn.addEventListener("click", function() {
         let choiceDiv = document.createElement("div");
         choiceDiv.className = "choice";
 
+        // Choice text and outcome fields
         let choiceText = document.createElement("input");
         choiceText.placeholder = "Enter choice text";
 
         let outcomeText = document.createElement("input");
         outcomeText.placeholder = "Enter outcome text";
 
+        // Choice type selector
         let typeSelect = document.createElement("select");
         ["right", "wrong", "lose"].forEach(type => {
             let option = document.createElement("option");
@@ -54,10 +64,12 @@ document.getElementById("addDilemma").addEventListener("click", function() {
             typeSelect.appendChild(option);
         });
 
+        // Optional finish message input (enabled only if type is "right")
         let finishInput = document.createElement("input");
         finishInput.placeholder = "Enter finish message";
         finishInput.disabled = true;
 
+        // Toggle finishInput based on type
         typeSelect.addEventListener("change", function() {
             finishInput.disabled = typeSelect.value !== "right";
             if (finishInput.disabled) finishInput.value = "";
@@ -73,6 +85,7 @@ document.getElementById("addDilemma").addEventListener("click", function() {
             }
         });
 
+        // Add elements to choice container
         choiceDiv.appendChild(choiceText);
         choiceDiv.appendChild(outcomeText);
         choiceDiv.appendChild(typeSelect);
@@ -81,11 +94,12 @@ document.getElementById("addDilemma").addEventListener("click", function() {
         choicesDiv.appendChild(choiceDiv);
     });
 
-    // Add question button logic
+    // Add new question logic
     addQuestionBtn.addEventListener("click", function() {
         let questionDiv = document.createElement("div");
         questionDiv.className = "question";
 
+        // Question and answer input fields
         let questionText = document.createElement("input");
         questionText.placeholder = "Enter clarifying question text";
 
@@ -102,12 +116,14 @@ document.getElementById("addDilemma").addEventListener("click", function() {
             }
         });
 
+        // Add elements to question container
         questionDiv.appendChild(questionText);
         questionDiv.appendChild(answerText);
         questionDiv.appendChild(deleteQuestionBtn);
         questionsDiv.appendChild(questionDiv);
     });
 
+    // Append all components to the dilemma
     dilemmaDiv.appendChild(dilemmaInput);
     dilemmaDiv.appendChild(deleteDilemmaBtn);
     dilemmaDiv.appendChild(choicesDiv);
@@ -117,32 +133,36 @@ document.getElementById("addDilemma").addEventListener("click", function() {
     dilemmasDiv.appendChild(dilemmaDiv);
 });
 
-// Function to update dilemma IDs after deletion
+// Reassigns dilemma dataset IDs after one is removed
 function updateDilemmaIds() {
     document.querySelectorAll(".dilemma").forEach((dilemmaDiv, index) => {
         dilemmaDiv.dataset.id = index;
     });
 }
 
-// Save game logic
+// Save game button logic
 document.getElementById("saveGame").addEventListener("click", function() {
     let title = document.getElementById("title").value.trim();
     let description = document.getElementById("description").value.trim();
     let story = document.getElementById("story").value.trim();
     let character = document.getElementById("character").value.trim();
 
+    // Title is required
     if (!title) {
         alert("Please enter a game title!");
         return;
     }
 
+    // Prepare filename for saving
     let sanitizedFilename = title.replace(/\s+/g, "_") + ".json";
 
     let dilemmas = [];
+    // Gather data from all dilemmas
     document.querySelectorAll(".dilemma").forEach((dilemmaDiv, index) => {
         let dilemmaText = dilemmaDiv.querySelector(".dilemma-text")?.value?.trim() || "";
 
         let choices = {};
+        // Extract all choices
         dilemmaDiv.querySelectorAll(".choice").forEach((choiceDiv, i) => {
             let inputs = choiceDiv.querySelectorAll("input, select");
 
@@ -158,6 +178,7 @@ document.getElementById("saveGame").addEventListener("click", function() {
                 outcome: outcomeText
             };
 
+            // Handle "right" choice differently
             if (choiceType === "right") {
                 if (finishText) {
                     choices[i + 1].finish = finishText;
@@ -170,6 +191,7 @@ document.getElementById("saveGame").addEventListener("click", function() {
         });
 
         let questions = [];
+        // Extract all questions
         dilemmaDiv.querySelectorAll(".question").forEach((questionDiv, i) => {
             let inputs = questionDiv.querySelectorAll("input");
             if (inputs.length < 2) return;
@@ -184,6 +206,7 @@ document.getElementById("saveGame").addEventListener("click", function() {
             });
         });
 
+        // Assemble full dilemma object
         dilemmas.push({
             id: index, 
             DILEMMA: dilemmaText,
@@ -192,6 +215,7 @@ document.getElementById("saveGame").addEventListener("click", function() {
         });
     });
 
+    // Full game object
     let gameData = {
         title: title,
         description: description,
@@ -202,6 +226,7 @@ document.getElementById("saveGame").addEventListener("click", function() {
         }
     };
 
+    // Send game data to backend
     fetch(`${BASE_API_URL}/create_game`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -215,6 +240,7 @@ document.getElementById("saveGame").addEventListener("click", function() {
     .catch(error => alert("Error saving game"));
 });
 
+// Trigger download of saved game JSON
 function downloadGame(filename) {
     let downloadUrl = `/export_json/${filename}`;
     let a = document.createElement("a");
@@ -224,4 +250,3 @@ function downloadGame(filename) {
     a.click();
     document.body.removeChild(a);
 }
- ``
