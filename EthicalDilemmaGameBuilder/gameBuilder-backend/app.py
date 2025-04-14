@@ -6,6 +6,7 @@ from flask_cors import CORS
 import socket
 import webbrowser
 import subprocess
+import platform
 
 # Get the base directory of the current script
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -46,7 +47,15 @@ def zip_game_files():
     # Create the zip file in the zipped_files directory
     shutil.make_archive(zip_path_with_name.replace(".zip", ""), 'zip', GAME_FILES_DIR)
 
+    # Delete all .json files in the Scenarios folder after zipping
+    scenarios_dir = os.path.join(BACKEND_DIR, "Scenarios")
+    for file in os.listdir(scenarios_dir):
+        if file.endswith(".json"):
+            os.remove(os.path.join(scenarios_dir, file))
+
+    print("Cleaned up uploaded scenario JSON files.")
     # Log the file path to confirm it's created
+
     print(f"Zip file created at: {zip_path_with_name}")
 
     # Return success message
@@ -54,8 +63,6 @@ def zip_game_files():
 
 
 # Route to build the game executable
-import platform
-
 @app.route("/build", methods=["POST"])
 def build_executable():
     if not os.path.exists(BACKEND_DIR):
@@ -132,9 +139,33 @@ def get_free_port():
     s.close()
     return port
 
+# Route to upload files to scenarios folder
+@app.route("/upload-scenarios", methods=["POST"])
+def upload_scenarios():
+    scenarios_dir = os.path.join(BACKEND_DIR, "Scenarios")
+
+    if not os.path.exists(scenarios_dir):
+        os.makedirs(scenarios_dir)
+
+    uploaded_files = request.files.getlist("files")
+    if not uploaded_files:
+        return jsonify({"error": "No files provided"}), 400
+
+    for file in uploaded_files:
+        if file and file.filename.endswith(".json"):
+            file_path = os.path.join(scenarios_dir, file.filename)
+            file.save(file_path)
+
+    if len(uploaded_files) == 1:
+        message = f'"{uploaded_files[0].filename}" uploaded successfully.'
+    else:
+        message = f"{len(uploaded_files)} scenario files uploaded successfully."
+    return jsonify({"message": message})
+
 # Run the Flask App and Open Browser
 if __name__ == "__main__":
     port = get_free_port()
     url = f"http://127.0.0.1:{port}/gameBuilder-frontend/index.html"
     webbrowser.open(url)
     app.run(port=port, debug=False)
+

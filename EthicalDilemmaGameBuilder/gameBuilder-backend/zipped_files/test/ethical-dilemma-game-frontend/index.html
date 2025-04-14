@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dilemma Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Dilemma Game</h1>
+    <div id="game-info">
+        <h2 id="story"></h2>
+        <p id="character"></p>
+        <button id="start-button">Start Game</button>
+    </div>
+    <div id="lives">❤️ Lives: 3</div>
+    <div id="dilemma-container" style="display: none;">
+        <h2>Dilemma:</h2>
+        <p id="dilemma"></p>
+    </div>
+
+    <div id="finish-screen" style="display: none;">
+        <h1>Game Complete!</h1>
+        <div id="stats"></div>
+        <textarea id="reflection-text" placeholder="Write your reflections here..."></textarea>
+        <button id="download-reflection-button">Download Reflection</button>
+    </div>
+    
+
+    <div id="choices-container" style="display: none;">
+        <h3>Choices:</h3>
+        <ul id="choices-list"></ul>
+    </div>
+
+    <div id="questions-container" style="display: none;">
+        <h3>Questions:</h3>
+        <ul id="questions-list"></ul>
+        <p id="question-answer" class="hidden"></p>
+    </div>
+
+    <button id="next-scenario-button">Next Scenario</button>
+
+    <script src="script.js"></script>
+</body>
+</html>

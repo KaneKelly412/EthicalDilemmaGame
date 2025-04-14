@@ -14,9 +14,18 @@
 
         <button id="zipButton">Zip Game Files</button>
         <button id="buildButton">Build Executable</button>
-
+        
         <p id="status"></p>
     </div>
+    <h3>Upload Scenario JSON Files</h3>
+    <div id="dropZone">
+        <p>Drag & drop JSON files here or 
+            <span id="browseFiles">upload from computer</span>
+        </p>
+        <input type="file" id="fileInput" accept=".json" multiple hidden>
+        <ul id="fileList"></ul>
+    </div>
+    <p id="uploadStatus"></p>
 
     <script src="script.js"></script>
 </body>

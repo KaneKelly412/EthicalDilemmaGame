@@ -250,3 +250,4 @@ function downloadGame(filename) {
     a.click();
     document.body.removeChild(a);
 }
+
