@@ -72,26 +72,7 @@ def build_executable():
     is_windows = current_os == "Windows"
 
     if is_windows:
-        # Windows Batch Script
-        build_cmd = [
-            "cmd.exe", "/c",
-            f"""
-            conda info --envs | findstr game-env >nul || (
-                echo Creating conda environment...
-                conda create -y -n game-env python=3.11
-            )
-            call conda activate game-env && (
-                pip install -r requirements.txt &&
-                pyinstaller --onefile ^
-                    --windowed ^
-                    --add-data "Scenarios;Scenarios" ^
-                    --add-data "../ethical-dilemma-game-frontend;ethical-dilemma-game-frontend" ^
-                    --add-data "routes;routes" ^
-                    --add-data "utils;utils" ^
-                    -n Game app.py
-            )
-            """
-        ]
+        return jsonify({"error": "Building executable is only supported on macOS or Linux."}), 400
     else:
         # macOS/Linux Bash Script
         build_cmd = [
@@ -120,6 +101,26 @@ def build_executable():
     except subprocess.CalledProcessError as e:
         print(f"Build failed: {e}")
         return jsonify({"error": "Build failed during setup or packaging."}), 500
+
+# Route to remove a file
+@app.route("/delete-scenario", methods=["POST"])
+def delete_scenario():
+    scenarios_dir = os.path.join(BACKEND_DIR, "Scenarios")
+    filename = request.args.get("filename")
+
+    if not filename:
+        return jsonify({"error": "No filename provided"}), 400
+
+    file_path = os.path.join(scenarios_dir, filename)
+
+    if not os.path.exists(file_path):
+        return jsonify({"error": f"File {filename} not found."}), 404
+
+    try:
+        os.remove(file_path)
+        return jsonify({"message": f"File {filename} deleted successfully."})
+    except Exception as e:
+        return jsonify({"error": f"Failed to delete {filename}. {str(e)}"}), 500
 
 
 # Serve the frontend index.html

@@ -96,10 +96,29 @@ function renderFileList() {
         removeBtn.classList.add("remove-btn");
 
         // Remove the file from the list when the button is clicked
-        removeBtn.onclick = () => {
-            uploadedFiles.splice(index, 1);
-            renderFileList();
+        removeBtn.onclick = async () => {
+            const confirmDelete = confirm(`Are you sure you want to delete "${file.name}"?`);
+            if (!confirmDelete) return;
+        
+            try {
+                const res = await fetch(`/delete-scenario?filename=${encodeURIComponent(file.name)}`, {
+                    method: "POST"
+                });
+                const data = await res.json();
+        
+                if (res.ok) {
+                    uploadedFiles.splice(index, 1);
+                    renderFileList();
+                    uploadStatus.textContent = `"${file.name}" deleted successfully.`;
+                } else {
+                    uploadStatus.textContent = `Failed to delete ${file.name}: ${data.error}`;
+                }
+            } catch (err) {
+                console.error(err);
+                uploadStatus.textContent = `Error deleting ${file.name}.`;
+            }
         };
+        
 
         // Add the remove button to the list item and display it
         li.appendChild(removeBtn);
